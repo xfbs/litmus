@@ -1,0 +1,13 @@
+name: litmus
+version: 0.1.0
+
+authors:
+  - Patrick Elsen <pelsen@xfbs.net>
+
+targets:
+  litmus:
+    main: src/bin/cli.cr
+
+crystal: 0.24.1
+
+license: MIT
