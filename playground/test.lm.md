@@ -7,7 +7,7 @@ Let's create a new file:
 <%= header %>
 
 # function definitions
-<%= functions %>
+<%= function %>
 
 <%= footer %>
 ```
@@ -16,4 +16,8 @@ Let's create a new file:
 require "file"
 ```
 
-```ruby file:src/file.cr 
+```ruby file:src/file.cr type:function tag:add-something
+def add(a, b)
+    a + b
+end
+```

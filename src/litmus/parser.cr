@@ -1,4 +1,5 @@
-require "./extract_code_blocks"
+require "./extracter"
+require "./tree"
 require "markdown/parser"
 
 
@@ -9,8 +10,12 @@ module Litmus
 		end
 
 		file = File.read filename
-		render = Render.new
+		render = Extracter.new
 
 		Markdown::Parser.new(file, render).parse
+
+		code_blocks = render.code_blocks
+
+		tree = Tree.load(code_blocks)
 	end
 end
