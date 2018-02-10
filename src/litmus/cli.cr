@@ -6,60 +6,103 @@ require "./parser"
 
 module Litmus
 	module Cli
-		def self.run
-			options = {
+		# Options struct. Keeps default options in one place.
+		struct Options
+			setter :options, :help, :update, :quiet, :diff, :files, :input, :parser
+			getter :options, :help, :update, :quiet, :diff, :files, :input, :parser
+
+			@options = {
 				"outdir" => Dir.current,
 				"basedir" => Dir.current
 			} of String => String
-			show_help = false
-			update = false
-			quiet = false
-			diff = false
 
-			parser = OptionParser.parse! do |p|
+			@help = false
+			@update = false
+			@quiet = false
+			@diff = false
+			@files = [] of String
+			@input : String | Nil = nil
+			@parser = uninitialized OptionParser
+		end
+
+		# Parse command-line options.
+		def self.parse_options!
+			options = Options.new
+			options.parser = OptionParser.parse! do |p|
 				p.banner = "Usage: litmus FILE [OPTIONS]"
 
 				p.on("-o", "--outdir=PATH", "Set output directory") do |path|
-					options["outdir"] = path
+					options.options["outdir"] = path
 				end
 
 				p.on("-b", "--basedir=PATH", "Set basedir") do |path|
-					options["basedir"] = path
+					options.options["basedir"] = path
 				end
 
 				p.on("-u", "--update", "Update files") do
-					update = true
+					options.update = true
 				end
 
 				p.on("-d", "--diff", "Show diff between existing and generated files.") do
-					diff = true
+					options.diff = true
+				end
+
+				p.on("-f", "--file FILE", "Only operate on one single file.") do |p|
+					options.files << p
 				end
 
 				p.on("-h", "--help", "Show this help") do
-					show_help = true
+					options.help = true
 				end
 
 				p.on("-q", "--quiet", "Don't show any output") do
-					quiet = true
+					options.quiet = true
 				end
 			end
 
-			if ARGV.size != 1
-				show_help = true
+			if ARGV.size == 1
+				options.input = ARGV[0]
 			end
 
-			if show_help
-				puts parser
+			options
+		end
+
+		# Select the requested files from the files list, or return all.
+		def self.select_files(options, files)
+			if options.files.size > 0
+				selected_files = [] of CodeFile
+				options.files.each do |f|
+					file = files.find{|cf| cf.file == f}
+
+					if file
+						selected_files << file unless selected_files.includes? file
+					else
+						puts "Error: file '#{f}' not found in index."
+					end
+				end
+
+				selected_files
+			else
+				files
+			end
+		end
+
+		def self.run
+			options = parse_options!
+
+			# show help if requested or when no input file was given.
+			if options.help || !options.input
+				puts options.parser
 				return
 			end
 
-			filename = ARGV[0]
-			tree = Litmus.parse(options, filename)
+			# parse file tree from the input file.
+			tree = Litmus.parse(options.options, options.input.as(String))
 
-			tree.files.each do |f|
-				path = File.expand_path(f.file, options["outdir"])
+			select_files(options, tree.files).each do |f|
+				path = File.expand_path(f.file, options.options["outdir"])
 
-				if diff
+				if options.diff
 					puts "=== @#{f.file} ==="
 					data = ""
 					data = File.read(path) if File.exists? path
@@ -71,7 +114,7 @@ module Litmus
 					end
 				end
 
-				if update
+				if options.update
 					FileUtils.mkdir_p(File.dirname(path))
 					File.write(path, f.render)
 				end

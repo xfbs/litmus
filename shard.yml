@@ -12,6 +12,9 @@ dependencies:
   diff:
     github: MakeNowJust/crystal-diff
     branch: master
+  markd:
+    github: icyleaf/markd
+    branch: master
 
 crystal: 0.24.1
 

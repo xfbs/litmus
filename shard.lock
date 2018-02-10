@@ -4,3 +4,7 @@ shards:
     github: MakeNowJust/crystal-diff
     commit: e884aa473e739be6944cd9b4467b6425aa63544e
 
+  markd:
+    github: icyleaf/markd
+    commit: c4d4de1f32629a17fab9d18791bfc6a9e7eb64af
+
