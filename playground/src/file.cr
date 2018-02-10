@@ -1,11 +1,13 @@
-<%= header %>
+require "file" # header
 
-# function definitions
-<%= function %>
+require "abc" # header requires
+require "def" # header requires
 
-<%= footer %>
+require "geh" # header requires
 
-require "file"
+define "abd" # header defines
+
+# auxillary comment - header
 
 def add(a, b)
     a + b

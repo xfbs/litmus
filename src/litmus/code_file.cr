@@ -46,17 +46,42 @@ module Litmus
 			end
 		end
 
-		def append(partial, tags=[] of String, pos=nil)
-			@body << partial
+		def find_by_tags(tags=[] of String)
+			loop do
+				selected = @body
+					.each_with_index
+					.select{|c| (0...tags.size).all?{|n| c[0].tags[n]? == tags[n]?}}
+					.map{|c| c[1]}
+					.to_a
+
+				if selected.size != 0 || tags.size == 0
+					return selected.to_a
+				end
+
+				tags = tags[0..-2]
+			end
 		end
 
-		def prepend(partial, tags=[] of String, pos=nil)
+		def append(partial, tags=[] of String, range=nil)
+			poss = find_by_tags(tags)
+
+			if poss.size == 0
+				# body is empty, we gotta insert here
+				@body << partial
+			else
+				# insert after last possibility
+				after = poss[-1]
+				@body.insert(after + 1, partial)
+			end
 		end
 
-		def insert(partial, tags=[] of String, pos=nil)
+		def prepend(partial, tags=[] of String, range=nil)
 		end
 
-		def replace(partial, tags=[] of String, pos=nil)
+		def insert(partial, tags=[] of String, range=nil)
+		end
+
+		def replace(partial, tags=[] of String, range=nil)
 		end
 
 		def select(tags=[] of String)

@@ -3,17 +3,25 @@
 
 Let's create a new file:
 
-```ruby @src/file.cr #template
-<%= header %>
+```ruby @src/file.cr #header
+require "file" # header
+```
 
-# function definitions
-<%= function %>
+```ruby @src/file.cr #header #requires
+require "abc" # header requires
+require "def" # header requires
+```
 
-<%= footer %>
+```ruby @src/file.cr #header #defines
+define "abd" # header defines
 ```
 
 ```ruby @src/file.cr #header
-require "file"
+# auxillary comment - header
+```
+
+```ruby @src/file.cr #header #requires
+require "geh" # header requires
 ```
 
 ```ruby @src/file.cr #function #add-something
