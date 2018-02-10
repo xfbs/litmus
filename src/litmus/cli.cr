@@ -1,4 +1,6 @@
 require "option_parser"
+require "diff"
+require "colorize"
 require "file_utils"
 require "./parser"
 
@@ -12,6 +14,7 @@ module Litmus
 			show_help = false
 			update = false
 			quiet = false
+			diff = false
 
 			parser = OptionParser.parse! do |p|
 				p.banner = "Usage: litmus FILE [OPTIONS]"
@@ -26,6 +29,10 @@ module Litmus
 
 				p.on("-u", "--update", "Update files") do
 					update = true
+				end
+
+				p.on("-d", "--diff", "Show diff between existing and generated files.") do
+					diff = true
 				end
 
 				p.on("-h", "--help", "Show this help") do
@@ -52,16 +59,17 @@ module Litmus
 			tree.files.each do |f|
 				path = File.expand_path(f.file, options["outdir"])
 
-				#unless quiet
-				#	data = ""
-			 	#data = File.read(path) if File.exists? path
+				if diff
+					puts "=== @#{f.file} ==="
+					data = ""
+					data = File.read(path) if File.exists? path
 
-				#	Diff.diff(data, f.render).each do |chunk|
-				#		print chunk.data.colorize(
-				#			chunk.append? ? :green :
-				#			chunk.delete? ? :red   : :dark_gray)
-				#	end
-				#end
+					Diff.diff(data.to_s, f.render.to_s).each do |chunk|
+						print chunk.data.colorize(
+							chunk.append? ? :green :
+							chunk.delete? ? :red   : :dark_gray)
+					end
+				end
 
 				if update
 					FileUtils.mkdir_p(File.dirname(path))
