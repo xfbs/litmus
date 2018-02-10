@@ -6,17 +6,22 @@ module Litmus
 		getter :attr, :body, :lang, :file, :tags, :mode
 
 		# contstructor properties
-		@attr = uninitialized Array(String)
-		@body = uninitialized String
-		@lines : Range(Int32, Int32) | Nil = nil
+		@node = uninitialized Markd::Node
 
 		# derived properties
 		@lang : String | Nil = nil
 		@file : String | Nil = nil
 		@tags = uninitialized Array(String)
 		@mode = uninitialized Array(String)
+		@attr = uninitialized Array(String)
+		@body = uninitialized String
 
-		def initialize(@attr, @body)
+		# computed properties
+		@lines : Range(Int32, Int32) | Nil = nil
+
+		def initialize(@node)
+			@attr = @node.fence_language.split(' ')
+			@body = @node.text
 			@lang = @attr[0]?
 			@file = get_attrs("@")[0]?
 			@tags = get_attrs("#")

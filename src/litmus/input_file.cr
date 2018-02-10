@@ -11,7 +11,7 @@ module Litmus
 		@doc = uninitialized Markd::Node
 		@partials : Array(Partial) | Nil = nil
 
-		def initialize(@data, @file, @base=Dir.current, path=File.join(@base, @file))
+		def initialize(@data, @file, @base=Dir.current, @path=File.join(@base, @file))
 			options = Markd::Options.new(smart: true)
 			@doc = Markd::Parser.parse(@data, options)
 		end
@@ -29,6 +29,22 @@ module Litmus
 			InputFile.new(data, file, base, path)
 		end
 
+		# Generates a path for the processed inputfile.
+		def out_path
+			file_parts = @file.split(File::SEPARATOR)
+
+			pos_lit = file_parts.reverse.index{|part| part == "lit"}
+
+			if pos_lit && pos_lit != 0
+				file_parts.delete_at(pos_lit)
+			else
+				file_parse.insert(-2, "gen")
+			end
+
+			file = File.join(file_parts)
+			File.expand_path(file, @base)
+		end
+
 		def partials
 			if partials = @partials
 				partials
@@ -41,10 +57,7 @@ module Litmus
 
 					case node.type
 					when Markd::Node::Type::CodeBlock
-						attr = node.fence_language.split(' ')
-						body = node.text
-						pos = node.source_pos
-						partials << Partial.new(attr, body)
+						partials << Partial.new(node)
 					end
 				end
 

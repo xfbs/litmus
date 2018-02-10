@@ -2,7 +2,7 @@ require "option_parser"
 require "diff"
 require "colorize"
 require "file_utils"
-require "./parser"
+require "./tree"
 
 module Litmus
 	module Cli
@@ -117,6 +117,10 @@ module Litmus
 					FileUtils.mkdir_p(File.dirname(path))
 					File.write(path, f.render)
 				end
+			end
+
+			if options.generate
+				puts "currently not implemented"
 			end
 		end
 	end
