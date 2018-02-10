@@ -8,12 +8,11 @@ module Litmus
 	module Cli
 		# Options struct. Keeps default options in one place.
 		struct Options
-			property options = {
-				"outdir" => Dir.current,
-				"basedir" => Dir.current
-			} of String => String
+			property basedir = Dir.current
+			property outdir = Dir.current
 			property help = false
 			property update = false
+			property generate = false
 			property quiet = false
 			property diff = false
 			property files = [] of String
@@ -27,12 +26,12 @@ module Litmus
 			options.parser = OptionParser.parse! do |p|
 				p.banner = "Usage: litmus FILE [OPTIONS]"
 
-				p.on("-o", "--outdir=PATH", "Set output directory") do |path|
-					options.options["outdir"] = path
+				p.on("-o", "--outdir PATH", "Set output directory") do |path|
+					options.outdir = path
 				end
 
-				p.on("-b", "--basedir=PATH", "Set basedir") do |path|
-					options.options["basedir"] = path
+				p.on("-b", "--basedir PATH", "Set basedir") do |path|
+					options.basedir = path
 				end
 
 				p.on("-u", "--update", "Update files") do
@@ -41,6 +40,10 @@ module Litmus
 
 				p.on("-d", "--diff", "Show diff between existing and generated files.") do
 					options.diff = true
+				end
+
+				p.on("-g", "--generate", "Generate processed markdown files from the input") do
+					options.generate = true
 				end
 
 				p.on("-f", "--file FILE", "Only operate on one single file.") do |p|
@@ -93,10 +96,10 @@ module Litmus
 			end
 
 			# parse file tree from the input file.
-			tree = Litmus.parse(options.options, options.input.as(String))
+			tree = Tree.from(options.input.as(String), options.basedir)
 
-			select_files(options, tree.files).each do |f|
-				path = File.expand_path(f.file, options.options["outdir"])
+			select_files(options, tree.code_files).each do |f|
+				path = File.expand_path(f.file, options.outdir)
 
 				if options.diff
 					puts "=== @#{f.file} ==="
