@@ -8,21 +8,17 @@ module Litmus
 	module Cli
 		# Options struct. Keeps default options in one place.
 		struct Options
-			setter :options, :help, :update, :quiet, :diff, :files, :input, :parser
-			getter :options, :help, :update, :quiet, :diff, :files, :input, :parser
-
-			@options = {
+			property options = {
 				"outdir" => Dir.current,
 				"basedir" => Dir.current
 			} of String => String
-
-			@help = false
-			@update = false
-			@quiet = false
-			@diff = false
-			@files = [] of String
-			@input : String | Nil = nil
-			@parser = uninitialized OptionParser
+			property help = false
+			property update = false
+			property quiet = false
+			property diff = false
+			property files = [] of String
+			property input : String | Nil = nil
+			property parser : OptionParser | Nil = nil
 		end
 
 		# Parse command-line options.
