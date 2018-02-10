@@ -1,0 +1,6 @@
+version: 1.0
+shards:
+  diff:
+    github: MakeNowJust/crystal-diff
+    version: 1.0.0
+

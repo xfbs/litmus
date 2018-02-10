@@ -17,12 +17,5 @@ module Litmus
 		code_blocks = render.code_blocks
 
 		tree = Tree.load(code_blocks)
-
-		files = tree.files
-
-		files.each do |file|
-			puts "#{file.file}: #{file}"
-			puts file.render
-		end
 	end
 end

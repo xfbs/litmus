@@ -8,6 +8,10 @@ targets:
   litmus:
     main: src/bin/cli.cr
 
+dependencies:
+  diff:
+    github: MakeNowJust/crystal-diff
+
 crystal: 0.24.1
 
 license: MIT
