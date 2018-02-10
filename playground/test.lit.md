@@ -3,7 +3,7 @@
 
 Let's create a new file:
 
-```ruby file:src/file.cr type:template
+```ruby @src/file.cr #template
 <%= header %>
 
 # function definitions
@@ -12,11 +12,11 @@ Let's create a new file:
 <%= footer %>
 ```
 
-```ruby file:src/file.cr type:header
+```ruby @src/file.cr #header
 require "file"
 ```
 
-```ruby file:src/file.cr type:function tag:add-something
+```ruby @src/file.cr #function #add-something
 def add(a, b)
     a + b
 end

@@ -11,7 +11,7 @@ module Litmus
 		def load(code_blocks)
 			code_blocks.each do |cblk|
 				partial = Partial.new(cblk["attr"], cblk["code"])
-				file = partial.file_name
+				file = partial.file
 
 				if file
 					if !@files[file]?
@@ -20,10 +20,14 @@ module Litmus
 
 					@files[file].add(partial)
 				else
-					puts "Error: can't associate code block with a file:\n#{partial.inspect}"
+					puts "Error: no filename specified for partial: \n#{partial.inspect}"
 				end
 			end
 			self
+		end
+
+		def files
+			@files.values
 		end
 
 		def self.load(data)
