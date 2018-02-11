@@ -74,6 +74,49 @@ module Litmus
         prefix("    ", node.text.chomp, io)
       end
     end
+
+    handle Type::Image do |node, io|
+      io << "!["
+
+      children(node) do |child|
+        io << handle(child)
+      end
+
+      io << "]("
+      dest = node.data["destination"]
+      io << dest if dest.is_a? String
+      io << ")"
+    end
+
+    handle Type::Link do |node, io|
+      io << "["
+
+      children(node) do |child|
+        io << handle(child)
+      end
+
+      io << "]("
+      dest = node.data["destination"]
+      io << dest if dest.is_a? String
+      io << ")"
+    end
+
+    handle Type::ThematicBreak do |node, io|
+      io << "* * *"
+    end
+
+    handle Type::List do |node, io|
+      children(node) do |child, i|
+        io << "\n" unless i == 0
+        io << handle(child)
+      end
+    end
+
+    handle Type::Item do |node, io|
+      children(node) do |child|
+        io << "-   "
+        io << handle(child)
+      end
+    end
   end
 end
-

@@ -36,9 +36,11 @@ module Litmus
     end
 
     def self.children(node : Node)
+      index = 0
       if child = node.first_child?
         loop do
-          yield child
+          yield child, index
+          index += 1
           break unless child.next?
           child = child.next
         end
