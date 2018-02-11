@@ -48,13 +48,31 @@ module Litmus
       contents = [] of IO
 
       children(node) do |child|
-        content = IO::Memory.new
-        content << "> "
-        content << handle(child).to_s.split("\n").join("\n> ")
-        contents << content
+        contents << prefix("> ", handle(child))
       end
 
       io << contents.join("\n> \n")
+    end
+
+    handle Type::Code do |node, io|
+      # todo: escape backticks in code.
+      io << "`"
+      io << node.text
+      io << "`"
+    end
+
+    handle Type::CodeBlock do |node, io|
+      if node.fenced?
+        io << "```"
+        if language = node.fence_language
+          io << language
+        end
+        io << "\n"
+        io << node.text
+        io << "```"
+      else
+        prefix("    ", node.text.chomp, io)
+      end
     end
   end
 end

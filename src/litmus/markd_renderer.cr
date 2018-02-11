@@ -44,5 +44,15 @@ module Litmus
         end
       end
     end
+
+    def self.prefix(pfix : String, text, output : IO = IO::Memory.new)
+      lines = text.to_s.split("\n").each_with_index do |line, i|
+        output << "\n" unless i == 0
+        output << pfix
+        output << line
+      end
+
+      output
+    end
   end
 end
