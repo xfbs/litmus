@@ -120,9 +120,11 @@ module Litmus
     end
 
     def enter(fmt)
-      if last = @formatters[-1]?
+      if last = @formatters[-1]? 
         if last.class == fmt.class
           last.enter
+        else
+          @formatters << fmt
         end
       else
         @formatters << fmt

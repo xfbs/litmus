@@ -18,6 +18,14 @@ module Litmus
       def format(text)
         "#{"#" * @depth} #{text}"
       end
+
+      def leave; 0; end
+    end
+
+    class BulletList < Formatter
+      def format(text)
+        "#{"    " * (@depth - 1)}- #{text}"
+      end
     end
 
     node Type::CodeBlock do |action, render|
@@ -53,10 +61,11 @@ module Litmus
         render.pad!
         level = node.data["level"]?
         level = 1 unless level.is_a? Int32
-        render.format! node.text, fmt: Heading.new(level)
+        render.enter Heading.new(level)
       end
 
       action.after do |node|
+        render.leave Heading
         render.pad(2)
       end
     end
@@ -74,6 +83,28 @@ module Litmus
 
       action.after do |node|
         render.pad(2)
+      end
+    end
+
+    node Type::List do |action, render|
+      action.before do |node|
+        #render.pad!
+        render.enter BulletList.new
+      end
+
+      action.after do |node|
+        render.leave BulletList
+        render.pad(2)
+      end
+    end
+
+    node Type::Item do |action, render|
+      action.before do |node|
+        render.pad!
+      end
+
+      action.after do |node|
+        render.pad(1)
       end
     end
   end
