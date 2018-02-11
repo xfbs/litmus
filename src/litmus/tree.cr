@@ -35,7 +35,8 @@ module Litmus
 
 				@code_files[file].add(partial)
 			else
-				puts "Error: no filename specified for partial: \n#{partial.inspect}"
+        # ignore for now.
+				#puts "Error: no file specified in partial at #{partial.source}"
 			end
 		end
 

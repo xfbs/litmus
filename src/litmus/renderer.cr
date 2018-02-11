@@ -29,8 +29,22 @@ module Litmus
 
     # Abstract class to define how to format text.
     abstract class Formatter
-      property depth = 1
+      property depth : Int32 = 1
       abstract def format(text)
+
+      def initialize(depth : Int32? =nil)
+        @depth = depth if depth
+      end
+
+      def enter
+        @depth += 1
+        @depth
+      end
+
+      def leave
+        @depth -= 1 unless @depth == 0
+        @depth
+      end
     end
 
     property formatters = [] of Formatter
@@ -72,11 +86,12 @@ module Litmus
     end
 
     def format(line, fmt : Formatter? = nil)
+      line = fmt.format(line) if fmt
+
       @formatters.reverse.each do |fmt|
         line = fmt.format(line)
       end
 
-      line = fmt.format(line) if fmt
       line
     end
 
@@ -105,11 +120,23 @@ module Litmus
     end
 
     def enter(fmt)
-      @formatters << fmt
+      if last = @formatters[-1]?
+        if last.class == fmt.class
+          last.enter
+        end
+      else
+        @formatters << fmt
+      end
     end
 
     def leave(type)
-      @formatters.pop
+      if last = @formatters[-1]?
+        if last.class == type
+          @formatters.pop unless last.leave > 0
+        end
+      else
+        @formatters.pop
+      end
     end
 
     def self.node(type, &block : Proc(Actions, Renderer, Nil))
@@ -129,6 +156,7 @@ module Litmus
 
         newline!
       end
+      @padding = 0
     end
 
     # Generate string output of rendered document.

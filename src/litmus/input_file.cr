@@ -5,6 +5,7 @@ require "markd"
 module Litmus
   # Represents a LitmusMarkdown input file.
 	class InputFile
+    getter :file, :base, :path
 		@file = uninitialized String
 		@data = uninitialized String
 		@base = uninitialized String
@@ -70,7 +71,7 @@ module Litmus
 
 					case node.type
 					when Markd::Node::Type::CodeBlock
-						partials << Partial.new(node)
+						partials << Partial.new(node, self)
 					end
 				end
 

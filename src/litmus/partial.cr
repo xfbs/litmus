@@ -1,3 +1,6 @@
+require "markd"
+require "./input_file"
+
 module Litmus
 	# Represents a partial code fragment from a code block in a litmus file,
 	# which is combined with other fragments (in the order specified in the
@@ -7,6 +10,7 @@ module Litmus
 
 		# contstructor properties
 		@node = uninitialized Markd::Node
+    @source = uninitialized InputFile
 
 		# derived properties
 		@lang : String | Nil = nil
@@ -19,7 +23,7 @@ module Litmus
 		# computed properties
 		@lines : Range(Int32, Int32) | Nil = nil
 
-		def initialize(@node)
+		def initialize(@node, @source)
 			@attr = @node.fence_language.split(' ')
 			@body = @node.text
 			@lang = @attr[0]?
@@ -51,5 +55,9 @@ module Litmus
 			io << "```"
 			io
 		end
+
+    def source
+      "'#{@source.file}' lines #{@node.source_pos[0][0]}-#{@node.source_pos[1][0]}"
+    end
 	end
 end

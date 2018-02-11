@@ -20,7 +20,7 @@ module Litmus
 
 			partial.mode.each do |m|
 				unless parsed = m.match(/^([a-z]+)(?:\[(-?[0-9]+)(?:\.\.(-?[0-9]+)+)?\])?$/)
-					puts "Error: can't parse #{m}"
+          raise "Error: can't parse mode '#{m}' in partial at #{partial.source}."
 					next
 				end
 
@@ -41,7 +41,7 @@ module Litmus
 				when "replace"
 					replace(partial, tags, range)
 				else
-					raise "Error: illegal mode encountered: #{m}"
+          raise "Error: illegal mode encountered: '#{m}' in partial at #{partial.source}."
 				end
 			end
 		end
