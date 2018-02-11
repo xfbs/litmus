@@ -3,7 +3,7 @@ module Litmus
 	# which is combined with other fragments (in the order specified in the
 	# fragment itself) to generate a code file.
 	class Partial
-		getter :attr, :body, :lang, :file, :tags, :mode
+		getter :attr, :body, :lang, :file, :tags, :mode, :node
 
 		# contstructor properties
 		@node = uninitialized Markd::Node

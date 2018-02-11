@@ -120,7 +120,7 @@ module Litmus
 			end
 
 			if options.generate
-				puts "currently not implemented"
+        puts tree.input_files.map{|i| i.generate}.join
 			end
 		end
 	end
