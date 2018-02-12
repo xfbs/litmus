@@ -14,12 +14,12 @@ module Litmus
 			property help = false
 			property update = false
 			property generate = false
-			property quiet = false
 			property diff = false
       property all = false
 			property files = [] of String
 			property input : Array(String) = [] of String
 			property parser : OptionParser | Nil = nil
+      property verbosity = 2
 		end
 
 		# Parse command-line options.
@@ -27,12 +27,16 @@ module Litmus
 			options.parser = OptionParser.parse! do |p|
 				p.banner = "Usage: litmus FILE [OPTIONS]"
 
-				p.on("-o", "--outdir PATH", "Set output directory") do |path|
+        p.on("-o", "--outdir PATH", "Specifies an output directory different from basedir.") do |path|
 					options.outdir = path
 				end
 
 				p.on("-b", "--basedir PATH", "Set basedir") do |path|
 					options.basedir = path
+
+          if options.outdir == Dir.current
+            options.outdir = path
+          end
 				end
 
 				p.on("-u", "--update", "Update files") do
@@ -56,8 +60,12 @@ module Litmus
 				end
 
 				p.on("-q", "--quiet", "Don't show any output") do
-					options.quiet = true
+					options.verbosity = 5
 				end
+
+        p.on("-v", "--verbose", "Be more verbose") do
+          options.verbosity -= 1 unless options.verbosity == 0
+        end
 
         p.on("-a", "--all", "Treat all .lit.md files in basedir as inputs.") do
           options.all = true
@@ -111,6 +119,7 @@ module Litmus
     # Run the command line interface.
 		def self.run
 			options = parse_options!
+      LOG.level = Logger::Severity.new(options.verbosity)
 
 			# show help if requested or when no input file was given.
 			if options.help
@@ -122,7 +131,13 @@ module Litmus
       begin
         tree = Tree.from(options.input, options.basedir)
       rescue ex
-        LOG.fatal ex.message
+        if options.verbosity == 0
+          LOG.fatal(String.build do |io|
+            ex.inspect_with_backtrace(io)
+          end.chomp)
+        else
+          LOG.fatal ex.message
+        end
         return
       end
 
