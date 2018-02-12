@@ -16,15 +16,15 @@ require "def" # header requires
 define "abd" # header defines
 ```
 
-```ruby @src/file.cr #header
+```ruby @src/file.cr #header !after#test
 # auxillary comment - header
 ```
 
-```ruby @src/file.cr #header #requires
+```ruby @src/file.cr #header #requires !after#abc
 require "geh" # header requires
 ```
 
-```ruby @src/file.cr #function #add-something
+```ruby @src/file.cr #function #add-something !after#heading#other
 def add(a, b)
     a + b
 end
