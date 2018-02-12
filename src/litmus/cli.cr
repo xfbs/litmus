@@ -5,6 +5,7 @@ require "file_utils"
 require "./tree"
 
 module Litmus
+  # Command line interface.
 	module Cli
 		# Options struct. Keeps default options in one place.
 		struct Options
@@ -15,14 +16,14 @@ module Litmus
 			property generate = false
 			property quiet = false
 			property diff = false
+      property all = false
 			property files = [] of String
-			property input : String | Nil = nil
+			property input : Array(String) = [] of String
 			property parser : OptionParser | Nil = nil
 		end
 
 		# Parse command-line options.
-		def self.parse_options!
-			options = Options.new
+    def self.parse_options!(options = Options.new)
 			options.parser = OptionParser.parse! do |p|
 				p.banner = "Usage: litmus FILE [OPTIONS]"
 
@@ -57,11 +58,32 @@ module Litmus
 				p.on("-q", "--quiet", "Don't show any output") do
 					options.quiet = true
 				end
+
+        p.on("-a", "--all", "Treat all .lit.md files in basedir as inputs.") do
+          options.all = true
+        end
 			end
 
-			if ARGV.size == 1
-				options.input = ARGV[0]
+      # anything specified on the command line that is not an option gets treated as an
+      # input file.
+      options.input += ARGV
+
+      # when -a is specified, search the basedir for input files.
+      if options.all
+        candidates = Dir[File.join(options.basedir, "*.lit.md")]
+
+        # remove basedir prefix
+        candidates.map!{|file| file[options.basedir.size..-1]}
+
+        options.input += candidates
 			end
+
+      # deduplicate input files
+      options.input.uniq!
+
+      if options.input.size == 0
+        options.help = true
+      end
 
 			options
 		end
@@ -76,7 +98,7 @@ module Litmus
 					if file
 						selected_files << file unless selected_files.includes? file
 					else
-						puts "Error: file '#{f}' not found in index."
+            LOG.error "file '#{f}' not found in index."
 					end
 				end
 
@@ -86,17 +108,23 @@ module Litmus
 			end
 		end
 
+    # Run the command line interface.
 		def self.run
 			options = parse_options!
 
 			# show help if requested or when no input file was given.
-			if options.help || !options.input
+			if options.help
 				puts options.parser
 				return
 			end
 
 			# parse file tree from the input file.
-			tree = Tree.from(options.input.as(String), options.basedir)
+      begin
+        tree = Tree.from(options.input, options.basedir)
+      rescue ex
+        LOG.fatal ex.message
+        return
+      end
 
 			select_files(options, tree.code_files).each do |f|
 				path = File.expand_path(f.file, options.outdir)
@@ -106,7 +134,7 @@ module Litmus
 					data = ""
 					data = File.read(path) if File.exists? path
 
-					Diff.diff(data.to_s, f.render.to_s).each do |chunk|
+					Diff.diff(data.to_s, f.to_s).each do |chunk|
 						print chunk.data.colorize(
 							chunk.append? ? :green :
 							chunk.delete? ? :red   : :dark_gray)
@@ -115,7 +143,7 @@ module Litmus
 
 				if options.update
 					FileUtils.mkdir_p(File.dirname(path))
-					File.write(path, f.render)
+					File.write(path, f)
 				end
 			end
 

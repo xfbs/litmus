@@ -8,20 +8,37 @@ module Litmus
 	class Partial
 		getter :attr, :body, :lang, :file, :tags, :mode, :node
 
-		# contstructor properties
+    # markdown AST node that this partial comes from.
 		@node = uninitialized Markd::Node
+
+    # input file that this partial comes from.
     @source = uninitialized InputFile
 
-		# derived properties
+    # which language is specified in the fenced block.
 		@lang : String | Nil = nil
+
+    # which code file (filename) is this partial supposed to be a part of.
 		@file : String | Nil = nil
-		@tags = uninitialized Array(String)
-		@mode = uninitialized Array(String)
+
+    # which attributes does this partial have? attributes are anything
+    # specified after the language name in a fenced code block.
 		@attr = uninitialized Array(String)
+
+    # which tags does this partial have? tags are any attributes specified
+    # with a leading '#'
+		@tags = uninitialized Array(String)
+
+    # which modes does this partial have? modes are any attributes specified
+    # with a leading '!'
+		@mode = uninitialized Array(String)
+
+    # body of the partial, containing code.
 		@body = uninitialized String
 
-		# computed properties
-		@lines : Range(Int32, Int32) | Nil = nil
+		# where in the resulting codefile is this partial placed?
+		@dest : Range(Int32, Int32) | Nil = nil
+
+    property hidden = false
 
 		def initialize(@node, @source)
 			@attr = @node.fence_language.split(' ')
@@ -42,7 +59,7 @@ module Litmus
 
 		# Specify on which lines of the file this partial
 		# gets rendered to.
-		def set_lines(@range)
+		def set_dest(@range)
 		end
 
 		# Turn this partial into a markdown code block.
@@ -56,8 +73,14 @@ module Litmus
 			io
 		end
 
+    # Returns a string denoting where this partial was found.
     def source
       "'#{@source.file}' lines #{@node.source_pos[0][0]}-#{@node.source_pos[1][0]}"
+    end
+
+    # Returns true if this partial is literate, false otherwise.
+    def literate?
+      @lang && @file
     end
 	end
 end

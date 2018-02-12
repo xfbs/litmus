@@ -1,15 +1,26 @@
 require "./partial"
 
 module Litmus
+  # Represents a code file, that is built from `Partial`s in the `InputFile`s
+  # and forms, along with other files, the index.
 	class CodeFile
 		getter :file
 
+    # Path of this codefile
 		@file = uninitialized String
+
+    # Body, represented as list of partials.
 		@body = [] of Partial
 
 		def initialize(@file)
 		end
 
+    # Convenience method to add a partial.
+    def <<(partial)
+      add(partial)
+    end
+
+    # Add a partial to this CodeFile.
 		def add(partial)
 			tags = partial.tags
 
@@ -87,8 +98,13 @@ module Litmus
 		def select(tags=[] of String)
 		end
 
-		def render
-			@body.map{|p| p.body}.join
-		end
+    # Renders this partial.
+    def to_s(io)
+      @body.each do |partial|
+        io << partial.body
+      end
+
+      io
+    end
 	end
 end

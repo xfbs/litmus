@@ -14,7 +14,7 @@ module Litmus
 		def initialize
 		end
 
-		# Load the given code_blocks into this tree.
+    # Load an input file and all of it's partials into this tree.
 		def load_input(input)
 			@input_files << input
 
@@ -25,19 +25,19 @@ module Litmus
 			self
 		end
 
+    # Load a partial into this tree.
 		def load_partial(partial)
-			file = partial.file
+      if partial.literate?
+        if file = partial.file
+          if !@code_files[file]?
+            @code_files[file] = CodeFile.new(file)
+          end
 
-			if file
-				if !@code_files[file]?
-					@code_files[file] = CodeFile.new(file)
-				end
-
-				@code_files[file].add(partial)
-			else
-        # ignore for now.
-				#puts "Error: no file specified in partial at #{partial.source}"
-			end
+          @code_files[file].add(partial)
+        else
+          LOG.error "No source file specified in partial at #{partial.source}."
+        end
+      end
 		end
 
 		# Return the `CodeFile`s of this tree as an array.
@@ -46,8 +46,14 @@ module Litmus
 		end
 
 		# Construct a new `Tree` with the given data pre-loaded.
-		def self.from(file : String, base=Dir.current)
-			Tree.new.load_input(InputFile.read(file, base))
+		def self.from(files : Array(String), base=Dir.current)
+      tree = Tree.new
+
+      files.each do |file|
+        tree.load_input(InputFile.read(file, base))
+      end
+
+      tree
 		end
 	end
 end
