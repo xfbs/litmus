@@ -4,28 +4,39 @@
 Let's create a new file:
 
 ```ruby @src/file.cr #header
-require "file" # header
+#header
 ```
 
 ```ruby @src/file.cr #header #requires
-require "abc" # header requires
-require "def" # header requires
+#header #required
 ```
 
 ```ruby @src/file.cr #header #defines
-define "abd" # header defines
+#header #defines
 ```
 
-```ruby @src/file.cr #header !after#test
-# auxillary comment - header
+```ruby @src/file.cr #header
+#header
 ```
 
-```ruby @src/file.cr #header #requires !after#abc
-require "geh" # header requires
+```ruby @src/file.cr #header #requires
+#header #requires
 ```
 
-```ruby @src/file.cr #function #add-something !after#heading#other
-def add(a, b)
-    a + b
-end
+```ruby @src/file.cr #function #add-something
+#function #add-something
 ```
+
+```ruby @src/file.cr #header #fixes !after#defines
+#header #fixes !after#defines
+```
+
+```ruby @src/file.cr #header #require-fixes !before#requires
+#header #require-fixes !before#requires
+```
+
+```ruby @src/file.cr #header !replace !after#requires !before#fixes
+#header !replace
+```
+
+oops.

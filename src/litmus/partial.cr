@@ -41,7 +41,7 @@ module Litmus
     property hidden = false
     property after : Array(String)? = nil
     property before : Array(String)? = nil
-    property replace : Array(String)? = nil
+    property replace = false
 
 		def initialize(@node, @source)
 			@node.fence_language.split(' ') do |a|
@@ -98,9 +98,9 @@ module Litmus
         when /^before(#[^#]+)*$/
           error_multiple_specification @before, "'before' mode", "!#{m}"
           @before = m.split('#')[1..-1] unless @before
-        when /^replace(#[^#]+)*$/
+        when "replace"
           error_multiple_specification @replace, "'replace' mode", "!#{m}"
-          @replace = m.split('#')[1..-1] unless @replace
+          @replace = true
         else
           LOG.warn "Mode '#{m}' not recognized in partial at #{source}, ignoring."
         end
@@ -111,7 +111,7 @@ module Litmus
     def error_multiple_specification(obj, what, item=nil)
       item = " '#{item}'" if item
       item = "" unless item
-      if !obj.nil?
+      if obj
         LOG.error "#{what} specified multiple times for partial at #{source}, ignoring#{item}."
       end
     end

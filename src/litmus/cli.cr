@@ -12,6 +12,7 @@ module Litmus
 			property basedir = Dir.current
 			property outdir = Dir.current
 			property help = false
+      property show = false
 			property update = false
 			property generate = false
 			property diff = false
@@ -69,6 +70,10 @@ module Litmus
 
         p.on("-a", "--all", "Treat all .lit.md files in basedir as inputs.") do
           options.all = true
+        end
+
+        p.on("-s", "--show", "Print the contents of the generated code files.") do
+          options.show = true
         end
 			end
 
@@ -155,6 +160,11 @@ module Litmus
 							chunk.delete? ? :red   : :dark_gray)
 					end
 				end
+
+        if options.show
+          puts "=== #{f.file} ==="
+          puts f
+        end
 
 				if options.update
 					FileUtils.mkdir_p(File.dirname(path))
