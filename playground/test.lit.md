@@ -3,40 +3,40 @@
 
 Let's create a new file:
 
-```ruby @src/file.cr #header
-#header
+```ruby @src/file.cr #header !hide
+#header !hide
 ```
 
-```ruby @src/file.cr #header #requires
-#header #required
+```ruby @src/file.cr #header #requires !hide
+#header #required !hide
 ```
 
-```ruby @src/file.cr #header #defines
-#header #defines
+```ruby @src/file.cr #header #defines !hide
+#header #defines !hide
 ```
 
-```ruby @src/file.cr #header
-#header
+```ruby @src/file.cr #header !hide
+#header !hide
 ```
 
-```ruby @src/file.cr #header #requires
-#header #requires
+```ruby @src/file.cr #header #requires !hide
+#header #requires !hide
 ```
 
-```ruby @src/file.cr #function #add-something
-#function #add-something
+```ruby @src/file.cr #function #add-something !hide
+#function #add-something !hide
 ```
 
-```ruby @src/file.cr #header #fixes !after#defines
-#header #fixes !after#defines
+```ruby @src/file.cr #header #fixes !after#defines !hide
+#header #fixes !after#defines !hide
 ```
 
-```ruby @src/file.cr #header #require-fixes !before#requires
-#header #require-fixes !before#requires
+```ruby @src/file.cr #header #require-fixes !before#requires !hide
+#header #require-fixes !before#requires !hide
 ```
 
-```ruby @src/file.cr #header !replace !after#requires !before#fixes
-#header !replace
+```ruby @src/file.cr #header !replace !after#requires !before#fixes !hide
+#header !replace !hide
 ```
 
 oops.

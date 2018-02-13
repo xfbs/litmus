@@ -55,5 +55,15 @@ module Litmus
 
       tree
 		end
+
+    def update!
+      @code_files.values.each do |code_file|
+        code_file.resolve_partials!
+      end
+
+      @input_files.each do |input_file|
+        input_file.output.transform!
+      end
+    end
 	end
 end

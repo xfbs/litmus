@@ -6,7 +6,7 @@ require "markd"
 module Litmus
   # Represents a LitmusMarkdown input file.
 	class InputFile
-    getter :file, :base, :path, :partials
+    getter :file, :base, :path, :partials, :output
 
 		@file = uninitialized String
 		@data = uninitialized String
@@ -79,11 +79,6 @@ module Litmus
 
     private def generate_output!
       @output = OutputFile.new(out_path, @ast, @partials)
-    end
-
-    def to_output
-      # fixme: clone the @doc?
-      @output
     end
 
     # Generates a new markdown file, which is the same as the input file

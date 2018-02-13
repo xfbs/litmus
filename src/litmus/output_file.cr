@@ -10,11 +10,10 @@ module Litmus
     @partials = uninitialized Array(Partial)
 
     def initialize(@path, @ast, @partials)
-      transform!
     end
 
     # Transforms the AST to generate and output file.
-    private def transform!
+    def transform!
       known_nodes = {} of Markd::Node => Partial
       partials.each do |partial|
         known_nodes[partial.node] = partial
@@ -32,7 +31,57 @@ module Litmus
       end
 
       to_transform.each do |node, partial|
-        puts "#{node.type}, #{partial.source}"
+        fix_up(node, partial)
+      end
+    end
+
+    private def fix_up(node : Markd::Node, partial : Partial)
+      transformed = partial.to_markdown
+
+      if transformed
+        replace(node, transformed)
+      else
+        delete(node)
+      end
+    end
+
+    def replace(node : Markd::Node, replacement : Markd::Node)
+      replacement.next = node.next
+      replacement.prev = node.prev
+      replacement.parent = node.parent
+
+      if node == node.parent.first_child?
+        node.parent.first_child = replacement
+      end
+
+      if node == node.parent.last_child?
+        node.parent.last_child = replacement
+      end
+
+      if prev = node.prev
+        prev.next = replacement
+      end
+
+      if next_node = node.next
+        next_node.prev = replacement
+      end
+    end
+
+    def delete(node : Markd::Node)
+      if node == node.parent.first_child?
+        node.parent.first_child = node.next
+      end
+
+      if node == node.parent.last_child?
+        node.parent.last_child = node.prev
+      end
+
+      if prev = node.prev
+        prev.next = node.next
+      end
+
+      if next_node = node.next
+        next_node.prev = node.prev
       end
     end
 

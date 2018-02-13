@@ -126,7 +126,7 @@ module Litmus
 
 		# Specify on which lines of the file this partial
 		# gets rendered to.
-		def set_dest(@range)
+		def set_dest(@dest)
 		end
 
 		# Turn this partial into a markdown code block.
@@ -148,6 +148,28 @@ module Litmus
     # Returns true if this partial is literate, false otherwise.
     def literate?
       @lang && @file
+    end
+
+    # Generates markdown from this partial
+    def to_markdown
+      return if @hidden
+
+      io = IO::Memory.new
+			options = Markd::Options.new(smart: true)
+
+      io << "###### [#{@file}](#{@file})"
+
+      if @dest
+        io << ", lines #{@dest}"
+      end
+
+      io << "\n"
+
+      io << "```#{@lang || ""}\n"
+      io << @body
+      io << "```"
+
+      Markd::Parser.parse(io.to_s, options)
     end
 	end
 end

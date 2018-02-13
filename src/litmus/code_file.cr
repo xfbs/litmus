@@ -179,5 +179,9 @@ module Litmus
 
       io
     end
+
+    # Todo
+    def resolve_partials!
+    end
 	end
 end

@@ -135,6 +135,7 @@ module Litmus
 			# parse file tree from the input file.
       begin
         tree = Tree.from(options.input, options.basedir)
+        tree.update!
       rescue ex
         if options.verbosity == 0
           LOG.fatal(String.build do |io|
@@ -174,7 +175,7 @@ module Litmus
 
 			if options.generate
         tree.input_files.each do |input_file|
-          puts input_file.to_output
+          puts input_file.output
         end
 			end
 		end
