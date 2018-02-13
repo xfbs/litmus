@@ -173,7 +173,9 @@ module Litmus
 			end
 
 			if options.generate
-        puts tree.input_files.map{|i| i.generate}.join
+        tree.input_files.each do |input_file|
+          puts input_file.to_output
+        end
 			end
 		end
 	end

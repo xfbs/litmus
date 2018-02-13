@@ -33,6 +33,7 @@ module Litmus
       end
 		end
 
+    # Adds a partial in 'after' mode.
     def add_after(partial)
       base, tag_match_len = resolve(partial.tags)
 
@@ -71,6 +72,7 @@ module Litmus
         "tags '#{tags[match_len..-1].map{|t| "##{t}"}.join(' ')}'."
     end
 
+    # Adds a partial an 'before' mode.
     def add_before(partial)
       base, tag_match_len = resolve(partial.tags)
 
@@ -95,6 +97,7 @@ module Litmus
       @body.insert(base.begin, partial)
     end
 
+    # Adds a partial in replace mode
     def add_replace(partial)
       base, match_depth = resolve(partial.tags)
       first, last = base.begin, base.end
