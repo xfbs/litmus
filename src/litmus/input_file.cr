@@ -48,7 +48,7 @@ module Litmus
     # `yourfile.md`     => `yourfile.gen.md`
     # `yourfile`        => `yourfile.gen`
 		def out_path
-      file_parts = @file.split('.')
+      file_parts = File.basename(@file).split('.')
 
 			pos_lit = file_parts.reverse.index{|part| part == "lit"}
 
@@ -60,7 +60,7 @@ module Litmus
 				file_parts.insert(-2, "gen")
 			end
 
-			file = File.join(file_parts)
+      File.join(File.dirname(@file), file_parts.join('.'))
 		end
 
     # Parse and return the partials.

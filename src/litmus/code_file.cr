@@ -34,7 +34,7 @@ module Litmus
 		end
 
     # Adds a partial in 'after' mode.
-    def add_after(partial)
+    private def add_after(partial)
       base, tag_match_len = resolve(partial.tags)
 
       if partial.after.try{|t| t.size != 0}
@@ -58,14 +58,14 @@ module Litmus
       @body.insert(base.end, partial)
     end
 
-    def match_error(partial, mode, tags, match_len)
+    private def match_error(partial, mode, tags, match_len)
       LOG.error "Couldn't match any of the tags "\
         "specified in '#{mode}' mode of partial at #{partial.source}: "\
         "no match for tags '#{tags.map{|t| "##{t}"}.join(' ')}', ignoring "\
         "tags '#{tags[match_len..-1].map{|t| "##{t}"}.join(' ')}'."
     end
 
-    def match_warning(partial, mode, tags, match_len)
+    private def match_warning(partial, mode, tags, match_len)
       LOG.warn "Couldn't match some of the tags "\
         "specified in '#{mode}' mode of partial at #{partial.source}: "\
         "no match for tags '#{tags.map{|t| "##{t}"}.join(' ')}', ignoring "\
@@ -73,7 +73,7 @@ module Litmus
     end
 
     # Adds a partial an 'before' mode.
-    def add_before(partial)
+    private def add_before(partial)
       base, tag_match_len = resolve(partial.tags)
 
       if partial.before.try{|t| t.size != 0}
@@ -98,7 +98,7 @@ module Litmus
     end
 
     # Adds a partial in replace mode
-    def add_replace(partial)
+    private def add_replace(partial)
       base, match_depth = resolve(partial.tags)
       first, last = base.begin, base.end
 
@@ -151,7 +151,7 @@ module Litmus
     end
 
     # Resolve some tags into a matching range and a depth.
-		def resolve(tags=[] of String)
+    private def resolve(tags=[] of String)
       tags.size.downto(1) do |tsize|
         # find first partial that matches the tags
 				first = @body.each_with_index
@@ -173,8 +173,13 @@ module Litmus
 
     # Renders this partial.
     def to_s(io)
+      first = true
       @body.each do |partial|
-        io << partial.body
+        partial.body.each do |line|
+          io << "\n" unless first
+          first = false
+          io << line
+        end
       end
 
       io
@@ -182,6 +187,12 @@ module Litmus
 
     # Todo
     def resolve_partials!
+      line = 0
+
+      @body.each do |partial|
+        partial.set_dest(line...line+partial.body.size)
+        line += partial.body.size
+      end
     end
 	end
 end

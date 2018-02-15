@@ -6,7 +6,7 @@ module Litmus
 	# which is combined with other fragments (in the order specified in the
 	# fragment itself) to generate a code file.
 	class Partial
-		getter :attr, :body, :tags, :mode, :node
+		getter :attr, :tags, :mode, :node
 
     # markdown AST node that this partial comes from.
 		@node = uninitialized Markd::Node
@@ -33,7 +33,7 @@ module Litmus
 		property mode = [] of String
 
     # body of the partial, containing code.
-		@body = uninitialized String
+		property body = [] of String
 
 		# where in the resulting codefile is this partial placed?
 		property dest : Range(Int32, Int32)? = nil
@@ -48,7 +48,7 @@ module Litmus
         @attr << a unless a.size == 0
       end
 
-			@body = @node.text
+      @body = @node.text.split("\n")
       parse_attrs!
       parse_modes!
 		end
@@ -166,7 +166,10 @@ module Litmus
       io << "\n"
 
       io << "```#{@lang || ""}\n"
-      io << @body
+      @body.each_with_index do |line, i|
+        io << "\n" unless i == 0
+        io << line
+      end
       io << "```"
 
       Markd::Parser.parse(io.to_s, options)

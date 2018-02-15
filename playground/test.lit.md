@@ -39,4 +39,8 @@ Let's create a new file:
 #header !replace !hide
 ```
 
+```ruby @src/file.cr #header !after#requires
+hello #header
+```
+
 oops.

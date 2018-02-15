@@ -11,6 +11,7 @@ module Litmus
 		struct Options
 			property basedir = Dir.current
 			property outdir = Dir.current
+      property codedir = Dir.current
 			property help = false
       property show = false
 			property update = false
@@ -24,81 +25,66 @@ module Litmus
 		end
 
 		# Parse command-line options.
-    def self.parse_options!(options = Options.new)
-			options.parser = OptionParser.parse! do |p|
+    def self.parse_options!(opt = Options.new)
+			opt.parser = OptionParser.parse! do |p|
 				p.banner = "Usage: litmus FILE [OPTIONS]"
+        p.separator "Actions"
+				p.on("-h", "--help", "Show this help"){ opt.help = true }
+				#p.on("-d", "--diff", "Show diff between existing and generated files."){ opt.diff = true }
+				p.on("-u", "--update", "Update code files"){ opt.update = true }
+				p.on("-g", "--generate", "Generate markdown files from input"){ opt.generate = true }
+        #p.on("-s", "--show",     "Print the contents of the generated code files."){ opt.show = true }
+        p.separator "Paths"
 
-        p.on("-o", "--outdir PATH", "Specifies an output directory different from basedir.") do |path|
-					options.outdir = path
-				end
+        p.on("-o", "--outdir PATH", "Output directory for markdown files.") do |path|
+          opt.outdir = path
+        end
 
-				p.on("-b", "--basedir PATH", "Set basedir") do |path|
-					options.basedir = path
+				#p.on("-b", "--basedir PATH", "Set basedir") do |path|
+				#	options.basedir = path
 
-          if options.outdir == Dir.current
-            options.outdir = path
-          end
-				end
+        #  if options.outdir == Dir.current
+        #    options.outdir = path
+        #  end
+				#end
 
-				p.on("-u", "--update", "Update files") do
-					options.update = true
-				end
+        p.on("-c", "--codedir PATH", "Output directory for code files") do |path|
+          opt.codedir = path
+        end
 
-				p.on("-d", "--diff", "Show diff between existing and generated files.") do
-					options.diff = true
-				end
+        #.on("-a", "--all", "Treat all .lit.md files in basedir as inputs.") do
+         # options.all = true
+        #end
 
-				p.on("-g", "--generate", "Generate processed markdown files from the input") do
-					options.generate = true
-				end
+				#p.on("-f", "--file FILE", "Only operate on one single file.") do |p|
+				#	options.files << p
+				#end
 
-				p.on("-f", "--file FILE", "Only operate on one single file.") do |p|
-					options.files << p
-				end
-
-				p.on("-h", "--help", "Show this help") do
-					options.help = true
-				end
+        p.separator "Verbosity"
 
 				p.on("-q", "--quiet", "Don't show any output") do
-					options.verbosity = 5
+					opt.verbosity = 5
 				end
 
         p.on("-v", "--verbose", "Be more verbose") do
-          options.verbosity -= 1 unless options.verbosity == 0
+          opt.verbosity -= 1 unless opt.verbosity == 0
         end
 
-        p.on("-a", "--all", "Treat all .lit.md files in basedir as inputs.") do
-          options.all = true
-        end
-
-        p.on("-s", "--show", "Print the contents of the generated code files.") do
-          options.show = true
-        end
 			end
 
       # anything specified on the command line that is not an option gets treated as an
       # input file.
-      options.input += ARGV
-
-      # when -a is specified, search the basedir for input files.
-      if options.all
-        candidates = Dir[File.join(options.basedir, "*.lit.md")]
-
-        # remove basedir prefix
-        candidates.map!{|file| file[options.basedir.size..-1]}
-
-        options.input += candidates
-			end
+      opt.input += ARGV
 
       # deduplicate input files
-      options.input.uniq!
+      opt.input.uniq!
 
-      if options.input.size == 0
-        options.help = true
+      # if no input files are specified, shoe help.
+      if opt.input.size == 0
+        opt.help = true
       end
 
-			options
+			opt
 		end
 
 		# Select the requested files from the files list, or return all.
@@ -175,6 +161,7 @@ module Litmus
 
 			if options.generate
         tree.input_files.each do |input_file|
+          puts input_file.output.path
           puts input_file.output
         end
 			end
