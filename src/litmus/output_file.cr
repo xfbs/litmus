@@ -41,47 +41,27 @@ module Litmus
       if transformed
         replace(node, transformed)
       else
-        delete(node)
+        node.unlink
       end
     end
 
-    def replace(node : Markd::Node, replacement : Markd::Node)
-      replacement.next = node.next
-      replacement.prev = node.prev
-      replacement.parent = node.parent
+    # Replaces one node with another.
+    # TODO: add this to Markd::Node?
+    def replace(old : Markd::Node, new : Markd::Node)
+      new.next = old.next?
+      new.prev = old.prev?
+      new.parent = old.parent
 
-      if node == node.parent.first_child?
-        node.parent.first_child = replacement
+      if prev = old.prev?
+        prev.next = new
+      else
+        new.parent?.try {|parent| parent.first_child = new}
       end
 
-      if node == node.parent.last_child?
-        node.parent.last_child = replacement
-      end
-
-      if prev = node.prev
-        prev.next = replacement
-      end
-
-      if next_node = node.next
-        next_node.prev = replacement
-      end
-    end
-
-    def delete(node : Markd::Node)
-      if node == node.parent.first_child?
-        node.parent.first_child = node.next
-      end
-
-      if node == node.parent.last_child?
-        node.parent.last_child = node.prev
-      end
-
-      if prev = node.prev
-        prev.next = node.next
-      end
-
-      if next_node = node.next
-        next_node.prev = node.prev
+      if nextn = old.next?
+        nextn.prev = new
+      else
+        new.parent?.try {|parent| parent.last_child = new}
       end
     end
 

@@ -43,4 +43,6 @@ Let's create a new file:
 hello #header
 ```
 
+```ruby @src/file.cr !replace
 oops.
+```

@@ -13,11 +13,8 @@ module Litmus
     property outdir = Dir.current
     property codedir = Dir.current
     property help = false
-    property show = false
     property update = false
     property generate = false
-    property diff = false
-    property all = false
     property files = [] of String
     property input : Array(String) = [] of String
     property help_text : String | Nil = nil
@@ -171,7 +168,8 @@ module Litmus
       log.info "Updating internal file tree."
       tree.update!
 
-			select_files(opt, tree.code_files).each do |f|
+		  #select_files(opt, tree.code_files).each do |f|
+      tree.code_files.each do |f|
 				path = File.expand_path(f.file, opt.outdir)
 
 				if opt.update
