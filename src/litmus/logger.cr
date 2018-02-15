@@ -19,12 +19,17 @@ module Litmus
             else ""
             end
 
+          prefix_pretty = prefix
+          if STDERR.tty?
+            prefix_pretty = prefix.colorize(:red)
+          end
+
           padding = " " * prefix.size
 
           first = true
           Logger.split_string(msg, 80 - prefix.size) do |rng|
             if first
-              io << prefix
+              io << prefix_pretty
               first = false
             else
               io << "\n"

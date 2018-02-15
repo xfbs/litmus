@@ -1,5 +1,4 @@
 require "option_parser"
-require "diff"
 require "colorize"
 require "file_utils"
 require "./tree"

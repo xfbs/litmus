@@ -11,7 +11,7 @@ module Litmus
     property? help = false
     property? update = false
     property? generate = false
-    property help_text : String? = nil
+    property! help_text : String?
     property verbosity = 2
 
     def initialize
@@ -20,6 +20,12 @@ module Litmus
     def validate!
       validated = [] of String
 
+      # don't validate when help was requested.
+      if @help
+        return
+      end
+
+      # check for duplicate input files and send a warning.
       @input_files.reduce({} of String => Bool) do |duplicate, cur|
         if duplicate[cur]? == false
           duplicate[cur] = true
