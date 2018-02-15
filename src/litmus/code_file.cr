@@ -12,7 +12,9 @@ module Litmus
     # Body, represented as list of partials.
 		@body = [] of Partial
 
-		def initialize(@file)
+    @log = uninitialized Logger
+
+		def initialize(@log, @file)
 		end
 
     # Convenience method to add a partial.
@@ -29,7 +31,7 @@ module Litmus
       elsif !partial.after
         add_before(partial)
       else
-        LOG.error "Partial at #{partial.source} specified both 'before' and 'after' modes."
+        @log.error "Partial at #{partial.source} specified both 'before' and 'after' modes."
       end
 		end
 
@@ -59,14 +61,14 @@ module Litmus
     end
 
     private def match_error(partial, mode, tags, match_len)
-      LOG.error "Couldn't match any of the tags "\
+      @log.error "Couldn't match any of the tags "\
         "specified in '#{mode}' mode of partial at #{partial.source}: "\
         "no match for tags '#{tags.map{|t| "##{t}"}.join(' ')}', ignoring "\
         "tags '#{tags[match_len..-1].map{|t| "##{t}"}.join(' ')}'."
     end
 
     private def match_warning(partial, mode, tags, match_len)
-      LOG.warn "Couldn't match some of the tags "\
+      @log.warn "Couldn't match some of the tags "\
         "specified in '#{mode}' mode of partial at #{partial.source}: "\
         "no match for tags '#{tags.map{|t| "##{t}"}.join(' ')}', ignoring "\
         "tags '#{tags[match_len..-1].map{|t| "##{t}"}.join(' ')}'."
@@ -133,12 +135,12 @@ module Litmus
       num_to_replace = last - first
 
       if num_to_replace < 0
-        LOG.error "Illegal bounds in 'replace' mode of partial at #{partial.source}, "\
+        @log.error "Illegal bounds in 'replace' mode of partial at #{partial.source}, "\
           "skipping partial."
         return
       else
         if num_to_replace == 0
-          LOG.warn "Bounds in 'replace' mode of partial at #{partial.source} too restrictive: "\
+          @log.warn "Bounds in 'replace' mode of partial at #{partial.source} too restrictive: "\
             "nothing will be replaced."
         end
 

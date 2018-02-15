@@ -42,8 +42,9 @@ module Litmus
     property after : Array(String)? = nil
     property before : Array(String)? = nil
     property replace = false
+    @log = uninitialized Logger
 
-		def initialize(@node, @source)
+		def initialize(@log, @node, @source)
 			@node.fence_language.split(' ') do |a|
         @attr << a unless a.size == 0
       end
@@ -59,24 +60,24 @@ module Litmus
         case a[0]
         when '@'
           if @file
-            LOG.error "Multiple files specified for partial at #{source}, ignoring #{a}."
+            @log.error "Multiple files specified for partial at #{source}, ignoring #{a}."
           elsif rest.size == 0
-            LOG.error "Illegal file name '#{rest}' specified for partial at #{source}, ignoring."
+            @log.error "Illegal file name '#{rest}' specified for partial at #{source}, ignoring."
           else
             if i != 1
-            LOG.warn "File specification for partial at #{source} is not after language name."
+            @log.warn "File specification for partial at #{source} is not after language name."
             end
             @file = rest
           end
         when '!'
           if rest.size == 0
-            LOG.error "Empty mode specified for partial at #{source}, ignoring."
+            @log.error "Empty mode specified for partial at #{source}, ignoring."
           else
             @mode << rest
           end
         when '#'
           if rest.size == 0
-            LOG.error "Empty tag specified for partial at #{source}, ignoring."
+            @log.error "Empty tag specified for partial at #{source}, ignoring."
           else
             @tags << rest
           end
@@ -102,7 +103,7 @@ module Litmus
           error_multiple_specification @replace, "'replace' mode", "!#{m}"
           @replace = true
         else
-          LOG.warn "Mode '#{m}' not recognized in partial at #{source}, ignoring."
+          @log.warn "Mode '#{m}' not recognized in partial at #{source}, ignoring."
         end
       end
     end
@@ -112,7 +113,7 @@ module Litmus
       item = " '#{item}'" if item
       item = "" unless item
       if obj
-        LOG.error "#{what} specified multiple times for partial at #{source}, ignoring#{item}."
+        @log.error "#{what} specified multiple times for partial at #{source}, ignoring#{item}."
       end
     end
 

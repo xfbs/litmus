@@ -14,9 +14,10 @@ module Litmus
 		@path = uninitialized String
 		@ast  = uninitialized Markd::Node
     @output   = uninitialized OutputFile
+    @log = uninitialized Logger
 		@partials = [] of Partial
 
-		def initialize(@data, @file, @base=Dir.current, @path=File.join(@base, @file))
+		def initialize(@log, @data, @file, @base=Dir.current, @path=File.join(@base, @file))
 			options = Markd::Options.new(smart: true)
 			@ast = Markd::Parser.parse(@data, options)
 
@@ -24,7 +25,7 @@ module Litmus
       generate_output!
 		end
 
-		def self.read(file, base=Dir.current)
+		def self.read(log, file, base=Dir.current)
 			path = File.join(base, file)
 
 			unless File.exists? path
@@ -34,7 +35,7 @@ module Litmus
 			# extract code blocks from the file
 			data = File.read path
 
-			InputFile.new(data, file, base, path)
+			InputFile.new(log, data, file, base, path)
 		end
 
 		# Generates a path for the processed inputfile.
@@ -72,7 +73,7 @@ module Litmus
 
         case node.type
         when Markd::Node::Type::CodeBlock
-          @partials << Partial.new(node, self)
+          @partials << Partial.new(@log, node, self)
         end
       end
 		end

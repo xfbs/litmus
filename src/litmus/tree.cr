@@ -10,6 +10,7 @@ module Litmus
 
 		@code_files = {} of String => CodeFile
 		@input_files = [] of InputFile
+    @log = uninitialized Logger
 
 		def initialize
 		end
@@ -30,12 +31,12 @@ module Litmus
       if partial.literate?
         if file = partial.file
           if !@code_files[file]?
-            @code_files[file] = CodeFile.new(file)
+            @code_files[file] = CodeFile.new(@log, file)
           end
 
           @code_files[file].add(partial)
         else
-          LOG.error "No source file specified in partial at #{partial.source}."
+          @log.error "No source file specified in partial at #{partial.source}."
         end
       end
 		end
@@ -43,17 +44,6 @@ module Litmus
 		# Return the `CodeFile`s of this tree as an array.
 		def code_files
 			@code_files.values
-		end
-
-		# Construct a new `Tree` with the given data pre-loaded.
-		def self.from(files : Array(String), base=Dir.current)
-      tree = Tree.new
-
-      files.each do |file|
-        tree.load_input(InputFile.read(file, base))
-      end
-
-      tree
 		end
 
     def update!
