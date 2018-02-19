@@ -3,29 +3,39 @@ require "./logger"
 module Litmus
   # Options class. Keeps default options in one place.
   class Options
-    property logger = Logger.default
-    property basedir = Dir.current
-    property outdir = Dir.current
-    property codedir = Dir.current
-    property input_files : Array(String) = [] of String
-    property? help = false
-    property? update = false
-    property? generate = false
+    property logger         = Logger.default
+    property basedir        = "."
+    property outdir         = Dir.current
+    property codedir        = Dir.current
+    property input_files    = [] of String
+    property recursive_dirs = [] of String
+    property? help          = false
+    property? update        = false
+    property? generate      = false
+    property verbosity      = 2
     property! help_text : String?
-    property verbosity = 2
 
     def initialize
     end
 
+    # Validates options.
     def validate!
-      validated = [] of String
+      # set log level since this function might use it
+      @logger.log_level(@verbosity)
 
       # don't validate when help was requested.
       if @help
         return
       end
 
-      # check for duplicate input files and send a warning.
+      validate_input_files!
+      validate_dirs!
+    end
+
+    # check for duplicate input files and send a warning.
+    private def validate_input_files!
+      validated = [] of String
+
       @input_files.reduce({} of String => Bool) do |duplicate, cur|
         if duplicate[cur]? == false
           duplicate[cur] = true
@@ -43,7 +53,10 @@ module Litmus
       end
 
       @input_files = validated
+    end
 
+    # Validate directories
+    private def validate_dirs!
       unless Dir.exists? @basedir
         raise "Basedir '#{@basedir}' doesn't exist or isn't a directory."
       end

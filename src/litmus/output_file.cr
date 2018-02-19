@@ -45,7 +45,7 @@ module Litmus
 
         # check if this is a known node
         if partial = known_nodes[current]?
-          to_transform << {current, partial}
+          to_transform << {current, partial} if partial.literate?
         end
       end
 

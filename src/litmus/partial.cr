@@ -50,6 +50,14 @@ module Litmus
       end
 
       @body = @node.text.split("\n")
+
+      # remove empty line at end
+      if last = @body[-1]?
+        if last.size == 0
+          @body.pop
+        end
+      end
+
       parse_attrs!
       parse_modes!
 		end

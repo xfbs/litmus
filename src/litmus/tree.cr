@@ -1,22 +1,30 @@
 require "./partial"
 require "./code_file"
 require "./input_file"
+require "./loggable"
 
 module Litmus
 	# Represents a virtual file tree of `CodeFile`s, which are generated
 	# from code_blocks partials
 	class Tree
-		getter :input_files
+    include Loggable
 
-		@code_files = {} of String => CodeFile
+		getter :input_files, :finalized
+    @code_files = uninitialized Hash(String, CodeFile)
 		@input_files = [] of InputFile
-    @log = uninitialized Logger
+    @options = uninitialized Options
+    @finalized = false
 
-		def initialize
+		def initialize(@options)
+      @log = @options.logger
+
+      @code_files = Hash(String, CodeFile).new do |hash, file|
+        hash[file] = CodeFile.new(@log, file)
+      end
 		end
 
     # Load an input file and all of it's partials into this tree.
-		def load_input(input)
+		def <<(input)
 			@input_files << input
 
 			input.partials.each do |partial|
@@ -27,16 +35,12 @@ module Litmus
 		end
 
     # Load a partial into this tree.
-		def load_partial(partial)
+    private def load_partial(partial)
       if partial.literate?
         if file = partial.file
-          if !@code_files[file]?
-            @code_files[file] = CodeFile.new(@log, file)
-          end
-
-          @code_files[file].add(partial)
+          @code_files[file] << partial
         else
-          @log.error "No source file specified in partial at #{partial.source}."
+          error "No source file specified in partial at #{partial.source}."
         end
       end
 		end
@@ -46,7 +50,9 @@ module Litmus
 			@code_files.values
 		end
 
-    def update!
+    def finalize!
+      raise "File tree already finalized" if @finalized
+
       @code_files.values.each do |code_file|
         code_file.resolve_partials!
       end
@@ -54,6 +60,8 @@ module Litmus
       @input_files.each do |input_file|
         input_file.output.transform!
       end
+
+      @finalized = true
     end
 	end
 end

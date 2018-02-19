@@ -175,12 +175,11 @@ module Litmus
 
     # Renders this partial.
     def to_s(io)
-      first = true
       @body.each do |partial|
         partial.body.each do |line|
-          io << "\n" unless first
           first = false
           io << line
+          io << "\n"
         end
       end
 
