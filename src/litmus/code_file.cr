@@ -23,26 +23,36 @@ module Litmus
     end
 
     # Add a partial to this CodeFile.
-		def add(partial)
+		def add(partial) : Int32?
       if partial.replace
         add_replace(partial)
-      elsif !partial.before
+      elsif !partial.before?
         add_after(partial)
-      elsif !partial.after
+      elsif !partial.after?
         add_before(partial)
       else
         @log.error "Partial at #{partial.source} specified both 'before' and 'after' modes."
+        nil
       end
 		end
 
     # Adds a partial in 'after' mode.
     private def add_after(partial)
+      if partial.pad
+        _, base_tag_len = resolve(partial.tags)
+        padding = partial.to_padding
+        padding.tags = padding.tags[0...base_tag_len]
+        pos = self << padding
+        @body.insert(pos.as(Int32) + 1, partial)
+        return
+      end
+
       base, tag_match_len = resolve(partial.tags)
 
-      if partial.after.try{|t| t.size != 0}
+      if partial.after?.try{|t| t.size != 0}
         matched_tags = partial.tags[0...tag_match_len]
 
-        partial.after.try do |tags|
+        partial.after?.try do |tags|
           tags.each do |tag|
             matched_tags << tag
           end
@@ -58,6 +68,7 @@ module Litmus
       end
 
       @body.insert(base.end, partial)
+      base.end
     end
 
     private def match_error(partial, mode, tags, match_len)
@@ -78,10 +89,10 @@ module Litmus
     private def add_before(partial)
       base, tag_match_len = resolve(partial.tags)
 
-      if partial.before.try{|t| t.size != 0}
+      if partial.before?.try{|t| t.size != 0}
         matched_tags = partial.tags[0...tag_match_len]
 
-        partial.before.try do |tags|
+        partial.before?.try do |tags|
           tags.each do |tag|
             matched_tags << tag
           end
@@ -97,6 +108,7 @@ module Litmus
       end
 
       @body.insert(base.begin, partial)
+      base.begin
     end
 
     # Adds a partial in replace mode
@@ -104,7 +116,7 @@ module Litmus
       base, match_depth = resolve(partial.tags)
       first, last = base.begin, base.end
 
-      if after = partial.after
+      if after = partial.after?
         after_tags = partial.tags[0...match_depth]
         after_tags += after
         after_base, depth = resolve(after_tags)
@@ -118,7 +130,7 @@ module Litmus
         first = after_base.end
       end
 
-      if before = partial.before
+      if before = partial.before?
         before_tags = partial.tags[0...match_depth]
         before_tags += before
         before_base, depth = resolve(before_tags)
@@ -150,6 +162,7 @@ module Litmus
       end
 
       @body.insert(first, partial)
+      first
     end
 
     # Resolve some tags into a matching range and a depth.

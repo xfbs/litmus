@@ -118,5 +118,13 @@ module Litmus
         io << handle(child)
       end
     end
+
+    handle Type::SoftBreak do |node, io|
+      io << "\n"
+    end
+
+    handle Type::HTMLInline do |node, io|
+      puts node.text
+    end
   end
 end

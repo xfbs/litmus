@@ -39,12 +39,14 @@ module Litmus
 		property dest : Range(Int32, Int32)? = nil
 
     property hidden = false
-    property after : Array(String)? = nil
-    property before : Array(String)? = nil
+    property! after : Array(String)?
+    property! before : Array(String)?
+    property pad = false
     property replace = false
+    property transform = true
     @log = uninitialized Logger
 
-		def initialize(@log, @node, @source)
+		def initialize(@log, @node : Markd::Node, @source)
 			@node.fence_language.split(' ') do |a|
         @attr << a unless a.size == 0
       end
@@ -61,6 +63,17 @@ module Litmus
       parse_attrs!
       parse_modes!
 		end
+
+    def to_padding
+      padding = self.dup
+
+      padding.transform = false
+      padding.pad = false
+      padding.hidden = true
+      padding.body = [""]
+
+      padding
+    end
 
     def parse_attrs!(attr=@attr)
       attr.each_with_index do |a, i|
@@ -101,6 +114,9 @@ module Litmus
         when "hide"
           error_multiple_specification @hidden, "'hide' mode", "!#{m}"
           @hidden = true
+        when "pad"
+          error_multiple_specification @pad, "'pad' mode", "!#{m}"
+          @pad = true
         when /^after(#[^#]+)*$/
           error_multiple_specification @after, "'after' mode", "!#{m}"
           @after = m.split('#')[1..-1] unless @after
@@ -139,13 +155,19 @@ module Litmus
 		end
 
 		# Turn this partial into a markdown code block.
-		def to_markdown(io="")
-			io << "###### [][#{file}]"
-			io << ", lines #{@range.begin}-#{@range.end}"
-			io << "\n\n"
-			io << "```#{attr[0]? || ""}"
-			io << body
-			io << "```"
+		def to_markdown(io : IO)
+      # todo: have a link basedir option to enable linking.
+			io << "###### File #{file}"
+      if dest = @dest
+        io << ", lines #{dest.begin}–#{dest.end}"
+      end
+			io << ":\n\n"
+			io << "```#{@lang || ""}\n"
+      @body.each do |line|
+        io << line
+        io << "\n"
+      end
+			io << "```\n"
 			io
 		end
 
@@ -165,21 +187,7 @@ module Litmus
 
       io = IO::Memory.new
 			options = Markd::Options.new(smart: true)
-
-      io << "###### [#{@file}](#{@file})"
-
-      if @dest
-        io << ", lines #{@dest}"
-      end
-
-      io << "\n"
-
-      io << "```#{@lang || ""}\n"
-      @body.each_with_index do |line, i|
-        io << "\n" unless i == 0
-        io << line
-      end
-      io << "```"
+      self.to_markdown(io)
 
       Markd::Parser.parse(io.to_s, options)
     end

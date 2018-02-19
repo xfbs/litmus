@@ -32,7 +32,7 @@ module Litmus
       # than searching the partials array each time.
       known_nodes = {} of Markd::Node => Partial
       partials.each do |partial|
-        known_nodes[partial.node] = partial
+        known_nodes[partial.node] = partial if partial.transform
       end
 
       # collect all the nodes that we will have to transform into an array.

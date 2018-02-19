@@ -59,7 +59,7 @@ module Litmus
 
         pos = last
 
-        while msg[pos]? == ' '
+        while msg[pos]?.try{|c| c.ascii_whitespace?} || msg[pos]? == "\n"
           pos += 1
         end
       end
