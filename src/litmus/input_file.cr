@@ -18,7 +18,7 @@ module Litmus
 		@partials = [] of Partial
 
 		def initialize(@log, @data, @file, @base=Dir.current, @path=File.join(@base, @file))
-			options = Markd::Options.new(smart: true)
+			options = Markd::Options.new()
 			@ast = Markd::Parser.parse(@data, options)
 
       generate_partials!

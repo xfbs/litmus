@@ -126,5 +126,13 @@ module Litmus
     handle Type::HTMLInline do |node, io|
       puts node.text
     end
+
+    handle Type::Emphasis do |node, io|
+      io << '*'
+      children(node) do |child|
+        io << handle(child)
+      end
+      io << '*'
+    end
   end
 end
